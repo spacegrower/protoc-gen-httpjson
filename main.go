@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	tsGen := plugin.NewJsonHttpGen("httpjson", plugin.TS{
+	tsGen := plugin.NewHttpJsonGen("httpjson", plugin.TS{
 		ResponseTypeName: "GrpcGatewayResponse",
 		ResponseTypeStruct: `{
 			meta: {

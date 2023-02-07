@@ -8,13 +8,13 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
-type JsonHttpGen struct {
+type HttpJsonGen struct {
 	suffix string
 	ts     TS
 }
 
-func NewJsonHttpGen(suffix string, tscfg TS) *JsonHttpGen {
-	return &JsonHttpGen{
+func NewHttpJsonGen(suffix string, tscfg TS) *HttpJsonGen {
+	return &HttpJsonGen{
 		suffix: suffix,
 		ts:     tscfg,
 	}
@@ -26,7 +26,7 @@ type TS struct {
 	ImportTsProtoPackageName string
 }
 
-func (j *JsonHttpGen) Generate(p *protogen.Plugin) error {
+func (j *HttpJsonGen) Generate(p *protogen.Plugin) error {
 	if j.ts.ImportTsProtoPackageName == "" {
 		j.ts.ImportTsProtoPackageName = "pb"
 	}
@@ -51,7 +51,7 @@ func (j *JsonHttpGen) Generate(p *protogen.Plugin) error {
 	return nil
 }
 
-func (j *JsonHttpGen) gen(p *protogen.Plugin, f *protogen.File) error {
+func (j *HttpJsonGen) gen(p *protogen.Plugin, f *protogen.File) error {
 
 	protoFileName := filepath.Base(f.GeneratedFilenamePrefix)
 	genFileName := fmt.Sprintf("%s_%s.ts", protoFileName, j.suffix)
@@ -85,7 +85,7 @@ type CallHandler<T> = (
 
 export interface CallOptions<T> {
     handler?: CallHandler<T>;
-    cfg: T;
+    cfg?: T;
 }
 
 // for example of axios: 
@@ -109,7 +109,7 @@ export interface CallOptions<T> {
 	return nil
 }
 
-func (j *JsonHttpGen) generateClass(g *protogen.GeneratedFile, service *protogen.Service) {
+func (j *HttpJsonGen) generateClass(g *protogen.GeneratedFile, service *protogen.Service) {
 	className := service.Desc.Name() + "Client"
 	g.P()
 	g.P(`
@@ -139,7 +139,7 @@ export class ` + className + `<T> {
 	g.P()
 }
 
-func (j *JsonHttpGen) generateClassMethod(g *protogen.GeneratedFile, service *protogen.Service, method *protogen.Method) {
+func (j *HttpJsonGen) generateClassMethod(g *protogen.GeneratedFile, service *protogen.Service, method *protogen.Method) {
 	gwi := func(i ...interface{}) {
 		var a = []interface{}{"    "}
 		a = append(a, i...)
