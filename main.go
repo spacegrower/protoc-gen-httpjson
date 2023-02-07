@@ -1,9 +1,14 @@
 package main
 
-import "github.com/spacegrower/protoc-gen-httpjson/plugin"
+import (
+	"flag"
+
+	"github.com/spacegrower/protoc-gen-httpjson/plugin"
+	"google.golang.org/protobuf/compiler/protogen"
+)
 
 func main() {
-	plugin.Run("jsonhttp", plugin.TS{
+	tsGen := plugin.NewJsonHttpGen("httpjson", plugin.TS{
 		ResponseTypeName: "GrpcGatewayResponse",
 		ResponseTypeStruct: `{
 			meta: {
@@ -15,4 +20,8 @@ func main() {
 		}`,
 		ImportTsProtoPackageName: "pb",
 	})
+	var flags flag.FlagSet
+	protogen.Options{
+		ParamFunc: flags.Set,
+	}.Run(tsGen.Generate)
 }
