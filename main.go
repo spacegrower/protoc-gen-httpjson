@@ -14,7 +14,7 @@ func main() {
 			meta: {
 				code: number;
 				message: string;
-				request_id: string;
+				rid: string;
 			};
 			data: any;
 		}`,

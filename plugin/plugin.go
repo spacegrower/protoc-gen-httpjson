@@ -75,17 +75,13 @@ func (j *JsonHttpGen) gen(p *protogen.Plugin, f *protogen.File) error {
 	g.P("export type " + j.ts.ResponseTypeName + " = {")
 	g.P(strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(j.ts.ResponseTypeStruct, "{"), "}")))
 	g.P("}")
+	g.P()
 	g.P(`
-export type RequestHeaders = {
-    [key: string]: string;
-};
-
 type CallHandler<T> = (
     path: string,
     body: any,
     cfg: T | undefined,
 ) => Promise<` + j.ts.ResponseTypeName + `>;
-
 
 export interface CallOptions<T> {
     handler?: CallHandler<T>;
@@ -97,7 +93,7 @@ export interface CallOptions<T> {
 // async function handler(
 //     path: string,
 //	   body: any,
-//	   cfg: AxiosRequestConfig | undefined,
+//	   cfg?: AxiosRequestConfig,
 // ): Promise<` + j.ts.ResponseTypeName + `> {
 //	   const resp = await axios.post(path, body, cfg);
 //	   return resp.data as ` + j.ts.ResponseTypeName + `;
@@ -116,15 +112,20 @@ export interface CallOptions<T> {
 func (j *JsonHttpGen) generateClass(g *protogen.GeneratedFile, service *protogen.Service) {
 	className := service.Desc.Name() + "Client"
 	g.P()
-	g.P("export class ", className, "<T> {")
-	g.P()
-	g.P("    private _baseURL: string;")
-	g.P("    private _handler: CallHandler<T>;")
-	g.P()
-	g.P("    constructor(handler: CallHandler<T>, baseURL?: string) {")
-	g.P("        this._handler = handler;")
-	g.P("        this._baseURL = baseURL || '';")
-	g.P("    }")
+	g.P(`
+"export class "` + className + `"<T> {
+
+    private _baseURL: string;
+	private _handler: CallHandler<T>;
+
+	constructor(handler: CallHandler<T>, baseURL?: string) {
+		if (baseURL !== undefined && baseURL.substr(baseURL.length - 1, 1) === '/') {
+			baseURL = baseURL.substring(baseURL.length - 1, 1)
+		}
+		this._handler = handler;
+		this._baseURL = baseURL || '';
+	}
+	`)
 	g.P()
 
 	for _, method := range service.Methods {
@@ -171,4 +172,17 @@ func protocVersion(gen *protogen.Plugin) string {
 
 func formatFullMethodName(service *protogen.Service, method *protogen.Method) string {
 	return fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.Desc.Name())
+}
+
+func genPrototype(g *protogen.GeneratedFile) {
+	g.P(`
+if (!String.prototype.endsWith) {
+    String.prototype.endsWith = function(search, this_len) {
+        if (this_len === undefined || this_len > this.length) {
+            this_len = this.length;
+        }
+        return this.substring(this_len - search.length, this_len) === search;
+    };
+}
+`)
 }
