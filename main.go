@@ -1,6 +1,6 @@
 package main
 
-import "github.com/spacegrower/protoc-gen-jsonhttp/plugin"
+import "github.com/spacegrower/protoc-gen-httpjson/plugin"
 
 func main() {
 	plugin.Run("jsonhttp", plugin.TS{

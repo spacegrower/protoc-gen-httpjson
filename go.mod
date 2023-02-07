@@ -1,4 +1,4 @@
-module github.com/spacegrower/protoc-gen-jsonhttp
+module github.com/spacegrower/protoc-gen-httpjson
 
 go 1.18
 
