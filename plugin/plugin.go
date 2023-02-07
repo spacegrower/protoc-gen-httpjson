@@ -80,7 +80,7 @@ func (j *JsonHttpGen) gen(p *protogen.Plugin, f *protogen.File) error {
 type CallHandler<T> = (
     path: string,
     body: any,
-    cfg: T | undefined,
+    cfg?: T,
 ) => Promise<` + j.ts.ResponseTypeName + `>;
 
 export interface CallOptions<T> {
@@ -113,14 +113,14 @@ func (j *JsonHttpGen) generateClass(g *protogen.GeneratedFile, service *protogen
 	className := service.Desc.Name() + "Client"
 	g.P()
 	g.P(`
-"export class "` + className + `"<T> {
+export class ` + className + `<T> {
 
     private _baseURL: string;
 	private _handler: CallHandler<T>;
 
 	constructor(handler: CallHandler<T>, baseURL?: string) {
-		if (baseURL !== undefined && baseURL.substr(baseURL.length - 1, 1) === '/') {
-			baseURL = baseURL.substring(baseURL.length - 1, 1)
+		if (baseURL !== undefined && baseURL.substring(baseURL.length - 1, baseURL.length) === '/') {
+			baseURL = baseURL.substring(0, baseURL.length - 1)
 		}
 		this._handler = handler;
 		this._baseURL = baseURL || '';
@@ -172,17 +172,4 @@ func protocVersion(gen *protogen.Plugin) string {
 
 func formatFullMethodName(service *protogen.Service, method *protogen.Method) string {
 	return fmt.Sprintf("/%s/%s", service.Desc.FullName(), method.Desc.Name())
-}
-
-func genPrototype(g *protogen.GeneratedFile) {
-	g.P(`
-if (!String.prototype.endsWith) {
-    String.prototype.endsWith = function(search, this_len) {
-        if (this_len === undefined || this_len > this.length) {
-            this_len = this.length;
-        }
-        return this.substring(this_len - search.length, this_len) === search;
-    };
-}
-`)
 }
