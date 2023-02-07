@@ -27,6 +27,18 @@ type TS struct {
 }
 
 func (j *JsonHttpGen) Generate(p *protogen.Plugin) error {
+	if j.ts.ImportTsProtoPackageName == "" {
+		j.ts.ImportTsProtoPackageName = "pb"
+	}
+	if j.ts.ResponseTypeName == "" {
+		j.ts.ResponseTypeName = "GrpcGatewayResponse"
+	}
+	if j.ts.ResponseTypeStruct == "" {
+		j.ts.ResponseTypeStruct = "{data: any}"
+	}
+	if j.suffix == "" {
+		j.suffix = "httpjson"
+	}
 	for _, f := range p.Files {
 		if !f.Generate {
 			continue
@@ -57,7 +69,8 @@ func (j *JsonHttpGen) gen(p *protogen.Plugin, f *protogen.File) error {
 	g.P()
 	g.P()
 	// import ts-proto generate file
-	g.P(`import * as pb from "./` + protoFileName + "\";")
+	g.P(`import * as ` + j.ts.ImportTsProtoPackageName + ` from "./` + protoFileName + "\";")
+	g.P(`import type * as ` + j.ts.ImportTsProtoPackageName + `type from "./` + protoFileName + "\";")
 	g.P()
 	g.P("export type " + j.ts.ResponseTypeName + " = {")
 	g.P(strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(j.ts.ResponseTypeStruct, "{"), "}")))
@@ -79,12 +92,12 @@ export interface CallOptions<T> {
     cfg: T;
 }
 
-// for example: 
+// for example of axios: 
 //
-// async function handler<T = any>(
+// async function handler(
 //     path: string,
 //	   body: any,
-//	   cfg: AxiosRequestConfig<T>,
+//	   cfg: AxiosRequestConfig | undefined,
 // ): Promise<` + j.ts.ResponseTypeName + `> {
 //	   const resp = await axios.post(path, body, cfg);
 //	   return resp.data as ` + j.ts.ResponseTypeName + `;
@@ -118,10 +131,9 @@ func (j *JsonHttpGen) generateClass(g *protogen.GeneratedFile, service *protogen
 		if !method.Desc.IsStreamingServer() && !method.Desc.IsStreamingClient() {
 			j.generateClassMethod(g, service, method)
 		} else {
-
+			g.P("	// " + method.Desc.Name() + " is not support")
 		}
 	}
-
 	g.P("}")
 	g.P()
 }
@@ -132,7 +144,7 @@ func (j *JsonHttpGen) generateClassMethod(g *protogen.GeneratedFile, service *pr
 		a = append(a, i...)
 		g.P(a...)
 	}
-	gwi("async "+string(method.Desc.Name())+"(req: ", j.ts.ImportTsProtoPackageName, "."+string(method.Input.Desc.Name())+", callOptions?: CallOptions<T>): Promise<"+j.ts.ImportTsProtoPackageName+"."+string(method.Output.Desc.Name())+"> {")
+	gwi("async "+string(method.Desc.Name())+"(req: ", j.ts.ImportTsProtoPackageName, "type."+string(method.Input.Desc.Name())+", callOptions?: CallOptions<T>): Promise<"+j.ts.ImportTsProtoPackageName+"."+string(method.Output.Desc.Name())+"> {")
 	gwi("    const resp = await this._handler(this._baseURL + '" + formatFullMethodName(service, method) + "', req, callOptions?.cfg)")
 	gwi("    if (!resp.meta || resp.meta.code === undefined || resp.meta.message === undefined) {")
 	gwi("        throw new Error('unknown response type');")
