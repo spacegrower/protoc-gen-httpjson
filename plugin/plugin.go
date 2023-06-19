@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"google.golang.org/protobuf/compiler/protogen"
+	"google.golang.org/protobuf/types/pluginpb"
 )
 
 type HttpJsonGen struct {
@@ -27,6 +28,7 @@ type TS struct {
 }
 
 func (j *HttpJsonGen) Generate(p *protogen.Plugin) error {
+	p.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
 	if j.ts.ImportTsProtoPackageName == "" {
 		j.ts.ImportTsProtoPackageName = "pb"
 	}
@@ -153,7 +155,7 @@ func (j *HttpJsonGen) generateClassMethod(g *protogen.GeneratedFile, service *pr
 	gwi("    if (resp.meta.code !== 0) {")
 	gwi("        throw new Error(resp.meta.message);")
 	gwi("    }")
-	gwi("    return " + j.ts.ImportTsProtoPackageName + "." + method.Output.GoIdent.GoName + ".create(resp.data as " + j.ts.ImportTsProtoPackageName + "." + string(method.Output.Desc.Name()) + ")")
+	gwi("    return " + j.ts.ImportTsProtoPackageName + "." + method.Output.GoIdent.GoName + ".fromJSON(resp.data)")
 	gwi("}")
 	gwi()
 }
