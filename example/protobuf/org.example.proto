@@ -2,11 +2,15 @@ syntax = "proto3";
 
 package example;
 
-option go_package = "./rpc/pb";
+import "google/protobuf/empty.proto";
 
 service Platform {
     rpc Login(LoginRequest) returns (LoginReply) {}
+    rpc LoginEmpty(Empty) returns (LoginReply) {}
+    rpc TestThirdImport(google.protobuf.Empty) returns (LoginReply) {}
 }
+
+message Empty {}
 
 message LoginRequest {
     string account = 1;
