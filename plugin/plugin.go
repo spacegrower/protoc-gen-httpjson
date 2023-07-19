@@ -85,7 +85,7 @@ func (j *HttpJsonGen) gen(p *protogen.Plugin, f *protogen.File) error {
 
 	filePkg = *f.Proto.Package
 
-	protoFileDir := filepath.Dir(f.Desc.Path())
+	protoFileDir := filepath.ToSlash(filepath.Dir(f.Desc.Path()))
 	protoFileName := filepath.Base(f.GeneratedFilenamePrefix)
 	genFileName := filepath.Join(protoFileDir, fmt.Sprintf("%s_%s.ts", protoFileName, j.suffix))
 	g := p.NewGeneratedFile(genFileName, f.GoImportPath)
@@ -115,8 +115,8 @@ func (j *HttpJsonGen) gen(p *protogen.Plugin, f *protogen.File) error {
 		// fmt.Println("import path", f.Desc.Imports().Get(i).FileDescriptor.Path(), f.Desc.Imports().Get(i).FileDescriptor.Package(), f.Desc.Imports().Get(i).FileDescriptor.Name(), f.Desc.Imports().Get(i).FileDescriptor.FullName())
 	}
 
-	pathDeep := len(strings.Split(protoFileDir, "/"))
-	genPathDeepStr := func(pathDeep int) string {
+	genPathDeepStr := func(protoPath string) string {
+		pathDeep := strings.Count(protoPath, "/")
 		if pathDeep == 0 {
 			return "./"
 		}
@@ -143,7 +143,7 @@ func (j *HttpJsonGen) gen(p *protogen.Plugin, f *protogen.File) error {
 		for _, v := range importPkgFaileds[pkgName] {
 			pkgTypes = append(pkgTypes, fmt.Sprintf("%s as %s", string(v.Name()), j.ts.getInputName(v)))
 		}
-		g.P(`import { ` + strings.Join(pkgTypes, ", ") + ` } from "` + filepath.Join(genPathDeepStr(pathDeep), info.PkgPath) + "\";")
+		g.P(`import { ` + strings.Join(pkgTypes, ", ") + ` } from "` + filepath.Join(genPathDeepStr(protoFileDir), info.PkgPath) + "\";")
 	}
 
 	g.P()
