@@ -117,6 +117,9 @@ func (j *HttpJsonGen) gen(p *protogen.Plugin, f *protogen.File) error {
 
 	pathDeep := len(strings.Split(protoFileDir, "/"))
 	genPathDeepStr := func(pathDeep int) string {
+		if pathDeep == 1 {
+			return "./"
+		}
 		var p []string
 		for i := 0; i < pathDeep; i++ {
 			p = append(p, "..")
