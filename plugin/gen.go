@@ -127,7 +127,7 @@ func render(j *HttpJsonGen, f *File) error {
 		for _, v := range importPkgFaileds[pkgName] {
 			pkgTypes = append(pkgTypes, fmt.Sprintf("%s as %s", string(v.Name()), j.ts.getInputName(v)))
 		}
-		g.P(`import { ` + strings.Join(pkgTypes, ", ") + ` } from "` + filepath.Join(genPathDeepStr(*f.Proto.Name), info.PkgPath) + "\";")
+		g.P(`import { ` + strings.Join(pkgTypes, ", ") + ` } from "` + genPathDeepStr(*f.Proto.Name) + info.PkgPath + "\";")
 	}
 
 	g.P()
