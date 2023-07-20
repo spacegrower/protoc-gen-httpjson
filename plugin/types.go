@@ -17,9 +17,9 @@ import (
 type genOptions = protogen.Options
 
 func New(suffix string, tscfg TS) (*HttpJsonGen, error) {
-	// if len(os.Args) > 1 {
-	// 	return nil, fmt.Errorf("unknown argument %q (this program should be run by protoc, not directly)", os.Args[1])
-	// }
+	if len(os.Args) > 1 {
+		return nil, fmt.Errorf("unknown argument %q (this program should be run by protoc, not directly)", os.Args[1])
+	}
 	in, err := ioutil.ReadAll(os.Stdin)
 	if err != nil {
 		return nil, err
