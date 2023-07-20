@@ -6,7 +6,6 @@ import (
 
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
-	"google.golang.org/protobuf/types/descriptorpb"
 )
 
 var (
@@ -36,7 +35,7 @@ func (t *TS) getInputName(desc protoreflect.MessageDescriptor) string {
 func (t *TS) getOutputName(desc protoreflect.MessageDescriptor) string {
 	pkgName := strings.TrimSuffix(string(desc.FullName()), "."+string(desc.Name()))
 	if pkgName == filePkg {
-		return t.ImportTsProtoPackageName + "type." + string(desc.Name())
+		return t.ImportTsProtoPackageName + "." + string(desc.Name())
 	}
 
 	if pkgInfo, exist := importPkg[pkgName]; exist {
@@ -45,9 +44,9 @@ func (t *TS) getOutputName(desc protoreflect.MessageDescriptor) string {
 	return string(desc.Name())
 }
 
-func (s *HttpJsonGen) Run(generate func(j *HttpJsonGen, f *descriptorpb.FileDescriptorProto) error) error {
+func (s *HttpJsonGen) Run() error {
 	for _, v := range s.req.ProtoFile {
-		if err := generate(s, v); err != nil {
+		if err := Gen(s, v); err != nil {
 			return nil
 		}
 	}

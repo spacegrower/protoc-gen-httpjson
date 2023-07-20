@@ -218,7 +218,7 @@ func (j *HttpJsonGen) generateClassMethod(g *GeneratedFile, service protoreflect
 	gwi("    if (resp.meta.code !== 0) {")
 	gwi("        throw new Error(resp.meta.message);")
 	gwi("    }")
-	gwi("    return " + j.ts.getInputName(method.Output()) + ".fromJSON(resp.data)")
+	gwi("    return " + j.ts.getOutputName(method.Output()) + ".fromJSON(resp.data)")
 	gwi("}")
 	gwi()
 }
